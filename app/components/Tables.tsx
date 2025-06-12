@@ -46,11 +46,11 @@ const Tables = <T,>({
   };
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-sm border border-black overflow-hidden">
+    <div className="w-full bg-white rounded-lg shadow-sm border border-primary overflow-hidden">
       {/* Search */}
-      <div className="p-4 border-b border-gray-200 bg-back">
+      <div className="p-4 border-b border-gray-200 bg-gray-50">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-dark">
+          <p className="text-sm text-gray-700">
             Total records: <span className="font-medium text-primary">{filteredData.length}</span>
           </p>
           <div className="relative w-64">
@@ -70,26 +70,26 @@ const Tables = <T,>({
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-secondary">
-          <thead className="bg-primary">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-secondary">
             <tr>
               {columns.map((col) => (
                 <th
                   key={String(col.accessor)}
                   scope="col"
-                  className={`px-6 py-3 text-left text-xs font-medium text-light uppercase tracking-wider ${col.className}`}
+                  className={`px-6 py-3 text-left text-xs font-medium text-dark uppercase tracking-wider ${col.className}`}
                 >
                   {col.header}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="bg-green-100 divide-y divide-primary">
+          <tbody className="bg-white divide-y divide-gray-200">
             {currentData.length > 0 ? (
               currentData.map((item) => renderRow(item))
             ) : (
               <tr>
-                <td colSpan={columns.length} className="px-6 py-4 whitespace-nowrap text-sm text-dark text-center">
+                <td colSpan={columns.length} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                   No records found
                 </td>
               </tr>
@@ -102,7 +102,7 @@ const Tables = <T,>({
       <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
         <div className="sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div className="hidden md:block">
-            <p className="text-sm text-dark">
+            <p className="text-sm text-gray-700">
               Showing{' '}
               <span className="font-medium text-primary">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
               <span className="font-medium text-primary">{Math.min(currentPage * itemsPerPage, filteredData.length)}</span>{' '}
@@ -114,18 +114,18 @@ const Tables = <T,>({
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-dark hover:bg-back disabled:opacity-50 disabled:cursor-not-allowed"
+                className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="sr-only">Previous</span>
                 <FiChevronLeft className="h-5 w-5" />
               </button>
-              <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-dark">
+              <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
                 Page {currentPage} of {totalPages}
               </span>
               <button
                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-dark hover:bg-back disabled:opacity-50 disabled:cursor-not-allowed"
+                className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="sr-only">Next</span>
                 <FiChevronRight className="h-5 w-5" />
