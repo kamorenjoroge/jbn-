@@ -19,7 +19,7 @@ const Page = () => {
      {
       header: "QTY",
       accessor: "quantity",
-      className: "text-left min-w-[20px]",
+      className: "hidden md:table-cell min-w-[20px]",
     },
     {
       header: "Brand",

@@ -43,7 +43,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
   const unreadCount = notifications.filter(n => n.unread).length;
 
   return (
-    <header className="bg-light shadow-sm border-b border-gray-200 px-4 py-3">
+    <header className="bg-light shadow-sm border-b border-gray-200 px-4 py-3 sticky top-0 z-30">
       <div className="flex items-center justify-between">
         {/* Left Side - Menu Button & Page Title */}
         <div className="flex items-center">
