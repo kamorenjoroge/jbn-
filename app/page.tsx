@@ -10,6 +10,7 @@ import {
   MdArrowDownward
 } from 'react-icons/md';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import ProductModal from './components/Modal/ProductModal';
 
 // Mock data
 const statsCards = [
@@ -103,9 +104,7 @@ const Page = () => {
           <button className="px-4 py-2 bg-secondary text-primary rounded-lg hover:bg-opacity-80 transition-colors">
             Export Report
           </button>
-          <button className="px-4 py-2 bg-primary text-light rounded-lg hover:bg-opacity-90 transition-colors">
-            Add Product
-          </button>
+          <ProductModal type="create" />
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Header from "./components/Header";
 import Sidebar from "./components/SideBar";
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 
 export default function AdminLayout({
   children,
@@ -24,6 +25,7 @@ export default function AdminLayout({
             <Header onMenuClick={toggleSidebar} />
             <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
               <div className="p-6">
+                <Toaster position="top-right" />
                 {children}
               </div>
             </main>
