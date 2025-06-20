@@ -1,17 +1,14 @@
-// app/api/tools/[id]/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+// app/api/tools/[id]/route.js
+import { NextResponse } from 'next/server';
 import cloudinary from '../../../../lib/cloudinary';
 import dbConnect from '../../../../lib/dbConnect';
 import Tool from '../../../../models/Tools';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+export async function GET(request, { params }) {
   try {
     await dbConnect();
-    const { id } = await params; // Await params here
-    const tool = await Tool.findById(id);
+    const awaitedParams = await params;
+    const tool = await Tool.findById(awaitedParams.id);
     
     if (!tool) {
       return NextResponse.json(
@@ -24,37 +21,34 @@ export async function GET(
       { success: true, data: tool },
       { status: 200 }
     );
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+  } catch (error) {
+    console.error('Error fetching tool:', error);
     return NextResponse.json(
-      { success: false, error: errorMessage },
+      { success: false, error: error.message || 'Unknown error' },
       { status: 500 }
     );
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+export async function PUT(request, { params }) {
   try {
     await dbConnect();
-    const { id } = await params; // Await params here
+    const awaitedParams = await params;
     const formData = await request.formData();
 
     // Extract fields
-    const name = formData.get('name') as string;
-    const brand = formData.get('brand') as string;
-    const category = formData.get('category') as string;
-    const quantity = parseInt(formData.get('quantity') as string) || 1;
-    const description = formData.get('description') as string;
-    const price = parseFloat(formData.get('price') as string);
-    const color = formData.getAll('color') as string[];
-    const existingImages = formData.getAll('existingImages') as string[];
+    const name = formData.get('name');
+    const brand = formData.get('brand');
+    const category = formData.get('category');
+    const quantity = parseInt(formData.get('quantity')) || 1;
+    const description = formData.get('description');
+    const price = parseFloat(formData.get('price'));
+    const color = formData.getAll('color');
+    const existingImages = formData.getAll('existingImages');
 
     // Handle image uploads
-    const imageFiles = formData.getAll('images') as File[];
-    const imageUrls: string[] = [...existingImages];
+    const imageFiles = formData.getAll('images');
+    const imageUrls = [...existingImages];
 
     for (const file of imageFiles) {
       if (file.size === 0) continue;
@@ -62,7 +56,7 @@ export async function PUT(
       const buffer = await file.arrayBuffer();
       const array = new Uint8Array(buffer);
 
-      const imageUrl = await new Promise<string>((resolve, reject) => {
+      const imageUrl = await new Promise((resolve, reject) => {
         cloudinary.uploader.upload_stream(
           { folder: 'tools' },
           (error, result) => {
@@ -79,7 +73,7 @@ export async function PUT(
     }
 
     const updatedTool = await Tool.findByIdAndUpdate(
-      id,
+      awaitedParams.id,
       {
         name,
         brand,
@@ -97,24 +91,21 @@ export async function PUT(
       { success: true, data: updatedTool },
       { status: 200 }
     );
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+  } catch (error) {
+    console.error('Error updating tool:', error);
     return NextResponse.json(
-      { success: false, error: errorMessage },
+      { success: false, error: error.message || 'Unknown error' },
       { status: 400 }
     );
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+export async function DELETE(request, { params }) {
   try {
     await dbConnect();
-    const { id } = await params; // Await params here
+    const awaitedParams = await params;
+    const tool = await Tool.findById(awaitedParams.id);
     
-    const tool = await Tool.findById(id);
     if (!tool) {
       return NextResponse.json(
         { success: false, error: 'Tool not found' },
@@ -134,16 +125,16 @@ export async function DELETE(
       console.error('Error deleting images from Cloudinary:', cloudinaryError);
     }
 
-    await Tool.findByIdAndDelete(id);
+    await Tool.findByIdAndDelete(awaitedParams.id);
 
     return NextResponse.json(
       { success: true, message: 'Tool deleted successfully' },
       { status: 200 }
     );
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+  } catch (error) {
+    console.error('Error deleting tool:', error);
     return NextResponse.json(
-      { success: false, error: errorMessage },
+      { success: false, error: error.message || 'Unknown error' },
       { status: 500 }
     );
   }
