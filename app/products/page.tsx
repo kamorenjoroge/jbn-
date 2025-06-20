@@ -231,7 +231,7 @@ const Page = () => {
     </button>
   </div>
       </div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 mt-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Tools Inventory</h1>
         <ProductModal type="create" onSuccess={fetchTools} />
       </div>

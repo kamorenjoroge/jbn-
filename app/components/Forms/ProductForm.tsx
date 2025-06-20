@@ -23,6 +23,11 @@ interface ProductFormProps {
   onSuccess?: () => void;
 }
 
+type Category = {
+  _id: string;
+  name: string;
+};
+
 const ProductForm: React.FC<ProductFormProps> = ({
   type = "create",
   productData,
@@ -45,6 +50,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [newColor, setNewColor] = useState("#000000");
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -62,6 +68,17 @@ const ProductForm: React.FC<ProductFormProps> = ({
       setExistingImages(productData.images || []);
     }
   }, [type, productData]);
+
+  useEffect(() => {
+  fetch("/api/category")
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        setCategories(data.data);
+      }
+    })
+    .catch((err) => console.error("Failed to load categories:", err));
+}, []);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -230,24 +247,25 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Category *
-            </label>
-            <select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
-              disabled={loading}
-            >
-              <option value="">Select Category</option>
-              <option value="Power Tools">Power Tools</option>
-              <option value="Hand Tools">Hand Tools</option>
-              <option value="Machinery">Machinery</option>
-              <option value="Accessories">Accessories</option>
-            </select>
-          </div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Category *
+  </label>
+  <select
+    name="category"
+    value={formData.category}
+    onChange={handleChange}
+    required
+    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
+  >
+    <option value="">Select Category</option>
+    {categories.map((cat) => (
+      <option key={cat._id} value={cat.name}>
+        {cat.name}
+      </option>
+    ))}
+  </select>
+</div>
+
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
