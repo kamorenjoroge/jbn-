@@ -4,6 +4,9 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import Tables from "../components/Tables";
 import ProductModal from "../components/Modal/ProductModal";
 import Image from "next/image";
+import { MdPeople, MdShoppingCart, MdTrendingUp } from "react-icons/md";
+import { FiPlus } from "react-icons/fi";
+import CategoryModal from "../components/Modal/CategoryModel";
 
 type Tool = {
   _id: string;
@@ -155,13 +158,13 @@ const Page = () => {
           className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${columns[5].className}`}
         >
           <div className="flex justify-start space-x-2">
-            <ProductModal type="view" id={tool._id}  />
+            <ProductModal type="view" id={tool._id} />
             <ProductModal
               type="update"
               id={tool._id}
               data={{
                 ...tool,
-                images: tool.image, 
+                images: tool.image,
               }}
               onSuccess={fetchTools}
             />
@@ -177,7 +180,57 @@ const Page = () => {
   if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
 
   return (
-    <div className="p-4">
+    <div className="p-1">
+      <div className="bg-primary/20 p-6 rounded-xl shadow-sm border border-primary">
+        <h3 className="text-lg font-semibold text-dark mb-4">Quick Actions</h3>
+         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    {/* Add Category */}
+    <CategoryModal>
+      <button className="p-4 border-2 border-dashed border-primary rounded-lg hover:border-primary hover:bg-secondary transition-colors group w-full">
+        <FiPlus
+          size={24}
+          className="text-dark group-hover:text-primary mx-auto mb-2"
+        />
+        <p className="text-sm text-gray-900 group-hover:text-primary text-center">
+          Add Category
+        </p>
+      </button>
+    </CategoryModal>
+
+    {/* New Order */}
+    <button className="p-4 border-2 border-dashed border-primary rounded-lg hover:border-primary hover:bg-secondary transition-colors group w-full">
+      <MdShoppingCart
+        size={24}
+        className="text-dark group-hover:text-primary mx-auto mb-2"
+      />
+      <p className="text-sm text-gray-900 group-hover:text-primary text-center">
+        New Order
+      </p>
+    </button>
+
+    {/* Add User */}
+    <button className="p-4 border-2 border-dashed border-primary rounded-lg hover:border-primary hover:bg-secondary transition-colors group w-full">
+      <MdPeople
+        size={24}
+        className="text-dark group-hover:text-primary mx-auto mb-2"
+      />
+      <p className="text-sm text-gray-900 group-hover:text-primary text-center">
+        Add User
+      </p>
+    </button>
+
+    {/* View Reports */}
+    <button className="p-4 border-2 border-dashed border-primary rounded-lg hover:border-primary hover:bg-secondary transition-colors group w-full">
+      <MdTrendingUp
+        size={24}
+        className="text-dark group-hover:text-primary mx-auto mb-2"
+      />
+      <p className="text-sm text-gray-900 group-hover:text-primary text-center">
+        View Reports
+      </p>
+    </button>
+  </div>
+      </div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Tools Inventory</h1>
         <ProductModal type="create" onSuccess={fetchTools} />
