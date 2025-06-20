@@ -1,17 +1,17 @@
 // app/api/tools/[id]/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import cloudinary from '../../../../lib/cloudinary';
 import dbConnect from '../../../../lib/dbConnect';
 import Tool from '../../../../models/Tools';
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
-) {
+): Promise<NextResponse> {
   try {
     await dbConnect();
-    const awaitedParams = await params;
-    const tool = await Tool.findById(awaitedParams.id);
+    const { id } = await params; // Await params here
+    const tool = await Tool.findById(id);
     
     if (!tool) {
       return NextResponse.json(
@@ -34,12 +34,12 @@ export async function GET(
 }
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
-) {
+): Promise<NextResponse> {
   try {
     await dbConnect();
-    const awaitedParams = await params;
+    const { id } = await params; // Await params here
     const formData = await request.formData();
 
     // Extract fields
@@ -79,7 +79,7 @@ export async function PUT(
     }
 
     const updatedTool = await Tool.findByIdAndUpdate(
-      awaitedParams.id,
+      id,
       {
         name,
         brand,
@@ -107,21 +107,13 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
-) {
+): Promise<NextResponse> {
   try {
     await dbConnect();
-    const awaitedParams = await params;
-    const { id } = awaitedParams;
+    const { id } = await params; // Await params here
     
-    if (!id) {
-      return NextResponse.json(
-        { success: false, error: 'Tool ID is required' },
-        { status: 400 }
-      );
-    }
-
     const tool = await Tool.findById(id);
     if (!tool) {
       return NextResponse.json(

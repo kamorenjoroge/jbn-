@@ -68,12 +68,12 @@ const ViewProduct = ({ id }: ProductViewProps) => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="max-w-6xl mx-auto p-6 bg-secondary/50 rounded-lg shadow-md">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Image Gallery */}
         <div>
           {/* Main Image */}
-          <div className="bg-gray-100 rounded-lg overflow-hidden mb-4 flex items-center justify-center">
+          <div className=" rounded-lg overflow-hidden mb-4 flex items-center justify-center">
             {mainImage ? (
               <Image
                 src={mainImage}
@@ -98,7 +98,7 @@ const ViewProduct = ({ id }: ProductViewProps) => {
                   key={index}
                   onClick={() => setMainImage(img)}
                   className={`rounded-md overflow-hidden border-2 transition-all ${
-                    mainImage === img ? 'border-green-500' : 'border-transparent hover:border-gray-300'
+                    mainImage === img ? 'border-primary' : 'border-transparent hover:border-gray-300'
                   }`}
                 >
                   <Image
@@ -157,14 +157,14 @@ const ViewProduct = ({ id }: ProductViewProps) => {
           </div>
 
           {/* Additional Info */}
-          <div className="border-t border-green-600 pt-4">
+          <div className="border-t  border-primary pt-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-gray-500">Product ID</p>
-                <p className="text-gray-700 font-mono text-xs">{product._id}</p>
+                <p className="text-gray-800">Product ID</p>
+                <p className="text-gray-500 font-mono text-xs">{product._id}</p>
               </div>
               <div>
-                <p className="text-gray-500">Quantity Available</p>
+                <p className="text-gray-900">Quantity Available</p>
                 <p className="text-gray-700">{product.quantity}</p>
               </div>
             </div>
