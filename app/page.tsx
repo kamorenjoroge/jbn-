@@ -76,9 +76,7 @@ const Page = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-dark">Dashboard Overview</h1>
-          <p className="text-gray-600 mt-1">
-            Welcome back! Here&apos;s what&lsquo;s happening with your store today.
-          </p>
+         
         </div>
         <div className="flex space-x-3">
           <ProductModal type="create" />

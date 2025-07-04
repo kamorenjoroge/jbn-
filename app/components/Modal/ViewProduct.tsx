@@ -1,279 +1,186 @@
-import { useEffect, useState } from "react";
-import Image from "next/image";
+"use client";
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import Image from 'next/image';
 
-type ViewProps = {
-  id: string;
-};
-
-interface OrderItem {
-  id: string;
+interface Product {
+  _id: string;
   name: string;
+  brand: string;
+  category: string;
   price: number;
   quantity: number;
-  image: string;
-  _id: string;
-}
-
-interface OrderData {
-  _id: string;
-  customerName: string;
-  customerEmail: string;
-  phone: string;
-  date: string;
-  status: string;
-  shippingAddress: string;
-  Mpesatransactioncode: string;
-  items: OrderItem[];
-  total: number;
+  description: string;
+  image: string[];
+  color: string[];
   createdAt: string;
   updatedAt: string;
-  __v: number;
 }
 
-const ViewOrder = ({ id }: ViewProps) => {
-  const [orderData, setOrderData] = useState<OrderData | null>(null);
+interface ProductViewProps {
+  id: string;
+}
+
+const ViewProduct = ({ id }: ProductViewProps) => {
+  const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [mainImage, setMainImage] = useState('');
 
   useEffect(() => {
-    const fetchOrderData = async () => {
+    const fetchProduct = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/orders/${id}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch order data');
+        const response = await axios.get(`/api/tools/${id}`);
+        const productData = response.data.data;
+        setProduct(productData);
+        if (productData.image?.length > 0) {
+          setMainImage(productData.image[0]);
         }
-        const data = await response.json();
-        setOrderData(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setError(err instanceof Error ? err.message : 'Failed to fetch product');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchOrderData();
+    fetchProduct();
   }, [id]);
-
-  const formatDate = (dateString: string): string => {
-    const options: Intl.DateTimeFormatOptions = {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-secondary p-6 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-dark">Loading order details...</p>
-        </div>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-secondary p-6 flex items-center justify-center">
-        <div className="bg-light p-6 rounded-lg shadow-md max-w-md w-full text-center">
-          <h2 className="text-xl font-bold text-dark mb-4">Error Loading Order</h2>
-          <p className="text-dark mb-4">{error}</p>
-          <button 
-            className="px-4 py-2 bg-primary text-light rounded-lg hover:bg-primary/90 transition-colors"
-            onClick={() => window.location.reload()}
-          >
-            Try Again
-          </button>
-        </div>
+      <div className="p-4 text-red-500 bg-red-50 rounded-md">
+        Error: {error}
       </div>
     );
   }
 
-  if (!orderData) {
+  if (!product) {
     return (
-      <div className="min-h-screen bg-secondary p-6 flex items-center justify-center">
-        <div className="bg-light p-6 rounded-lg shadow-md max-w-md w-full text-center">
-          <h2 className="text-xl font-bold text-dark mb-4">Order Not Found</h2>
-          <p className="text-dark mb-4">The requested order could not be found.</p>
-        </div>
+      <div className="p-4 text-gray-500">
+        Product not found
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-secondary p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8"> 
-          <div>
-            <h1 className="text-3xl font-bold text-dark">Order Details</h1>
-            <p className="text-dark/80">Order ID: #{orderData._id.substring(0, 8).toUpperCase()}</p>
+    <div className="max-w-6xl mx-auto p-6 bg-white rounded-lg shadow-md">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Image Gallery */}
+        <div>
+          {/* Main Image */}
+          <div className="bg-gray-100 rounded-lg overflow-hidden mb-4 flex items-center justify-center">
+            {mainImage ? (
+              <Image
+                src={mainImage}
+                alt={product.name}
+                width={600}
+                height={600}
+                className="w-full h-auto object-cover aspect-square"
+                priority
+              />
+            ) : (
+              <div className="w-full h-64 bg-gray-200 flex items-center justify-center text-gray-400">
+                No Image Available
+              </div>
+            )}
           </div>
+
+          {/* Thumbnail Gallery */}
+          {product.image?.length > 0 && (
+            <div className="grid grid-cols-4 gap-2">
+              {product.image.map((img, index) => (
+                <button
+                  key={index}
+                  onClick={() => setMainImage(img)}
+                  className={`rounded-md overflow-hidden border-2 transition-all ${
+                    mainImage === img ? 'border-green-500' : 'border-transparent hover:border-gray-300'
+                  }`}
+                >
+                  <Image
+                    src={img}
+                    alt={`${product.name} thumbnail ${index + 1}`}
+                    width={100}
+                    height={100}
+                    className="w-full h-24 object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Order Card */}
-        <div className="bg-light rounded-xl shadow-lg overflow-hidden border border-gray-200">
-          {/* Order Header */}
-          <div className="bg-primary p-6 text-light">
-            <div className="flex justify-between items-start">
-              <div>
-                <h2 className="text-2xl font-bold">
-                  Order Summary
-                </h2>
-                <p className="opacity-90">
-                  Placed on {formatDate(orderData.date)}
-                </p>
-              </div>
-              <span
-                className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                  orderData.status === "pending"
-                    ? "bg-warning/20 text-warning"
-                    : orderData.status === "shipped"
-                    ? "bg-secondary text-dark"
-                    : orderData.status === "cancelled"
-                    ? "bg-danger/20 text-danger"
-                    : orderData.status === "confirmed"
-                    ? "bg-success/20 text-success"
-                    : "bg-gray-100 text-gray-800"
-                }`}
-              >
-                {orderData.status.charAt(0).toUpperCase() +
-                  orderData.status.slice(1)}
-              </span>
+        {/* Product Details */}
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+          <p className="text-gray-600 mb-4">{product.brand}</p>
+
+          <div className="flex items-center mb-4">
+            <span className="text-2xl font-semibold text-gray-800">
+              KES {product.price.toLocaleString()}
+            </span>
+            <span className={`ml-4 px-2 py-1 text-sm rounded-full ${
+              product.quantity > 0 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-red-100 text-red-800'
+            }`}>
+              {product.quantity > 0 ? 'In Stock' : 'Out of Stock'}
+            </span>
+          </div>
+
+          {/* Category */}
+          <div className="mb-4">
+            <h3 className="text-sm font-medium text-gray-500 mb-1">Category</h3>
+            <p className="text-gray-700">{product.category}</p>
+          </div>
+
+          {/* Color Display */}
+          <div className="mb-6">
+            <h3 className="text-sm font-medium text-gray-500 mb-1">Colors</h3>
+            <div className="flex items-center flex-wrap gap-2">
+              {product.color?.map((color, index) => (
+                <div 
+                  key={index}
+                  className="w-8 h-8 rounded-full border border-gray-300"
+                  style={{ backgroundColor: color }}
+                  title={color}
+                />
+              ))}
             </div>
           </div>
 
-          {/* Order Content */}
-          <div className="p-6">
-            {/* Customer Info */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-dark mb-4 pb-2 border-b border-gray-200">
-                Customer Information
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-secondary p-4 rounded-lg">
-                  <p className="text-dark mb-1">
-                    <span className="font-medium">Name:</span>{" "}
-                    {orderData.customerName}
-                  </p>
-                  <p className="text-dark mb-1">
-                    <span className="font-medium">Email:</span>{" "}
-                    {orderData.customerEmail}
-                  </p>
-                  <p className="text-dark">
-                    <span className="font-medium">Phone:</span>{" "}
-                    {orderData.phone}
-                  </p>
-                </div>
-                <div className="bg-secondary p-4 rounded-lg">
-                  <p className="text-dark font-medium mb-1">Shipping Address</p>
-                  <p className="text-dark">{orderData.shippingAddress}</p>
-                </div>
-              </div>
-            </div>
+          {/* Description */}
+          <div className="mb-6">
+            <h3 className="text-sm font-medium text-gray-500 mb-1">Description</h3>
+            <p className="text-gray-700 whitespace-pre-line">{product.description}</p>
+          </div>
 
-            {/* Order Items */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold text-dark mb-4 pb-2 border-b border-gray-200">
-                Order Items
-              </h3>
-              <div className="border border-gray-200 rounded-lg overflow-hidden">
-                <div className="hidden md:grid grid-cols-12 bg-secondary p-4 font-medium text-dark">
-                  <div className="col-span-6">Product</div>
-                  <div className="col-span-2 text-center">Price</div>
-                  <div className="col-span-2 text-center">Quantity</div>
-                  <div className="col-span-2 text-right">Total</div>
-                </div>
-                {orderData.items.map((item) => (
-                  <div
-                    key={item._id}
-                    className="grid grid-cols-1 md:grid-cols-12 p-4 border-b border-gray-200 last:border-b-0 hover:bg-secondary/50 transition-colors"
-                  >
-                    <div className="col-span-6 flex items-center mb-3 md:mb-0">
-                      <div className="w-16 h-16 bg-secondary rounded-md mr-4 overflow-hidden flex items-center justify-center">
-                        {item.image ? (
-                          <Image
-                            width={64}
-                            height={64}
-                            src={item.image}
-                            alt={item.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-xs text-gray-500">
-                            No Image
-                          </span>
-                        )}
-                      </div>
-                      <p className="font-medium text-dark">{item.name}</p>
-                    </div>
-                    <div className="col-span-2 flex md:block mb-2 md:mb-0">
-                      <span className="md:hidden font-medium mr-2">Price:</span>
-                      <p className="text-dark text-center">
-                        Kes {item.price.toFixed(0)}
-                      </p>
-                    </div>
-                    <div className="col-span-2 flex md:block mb-2 md:mb-0">
-                      <span className="md:hidden font-medium mr-2">Qty:</span>
-                      <p className="text-dark text-center">{item.quantity}</p>
-                    </div>
-                    <div className="col-span-2 flex md:block">
-                      <span className="md:hidden font-medium mr-2">Total:</span>
-                      <p className="text-dark font-medium text-right">
-                        Kes {(item.price * item.quantity).toFixed(0)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+          {/* Additional Info */}
+          <div className="border-t border-green-600 pt-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-gray-500">Product ID</p>
+                <p className="text-gray-700 font-mono text-xs">{product._id}</p>
               </div>
-            </div>
-
-            {/* Order Summary */}
-            <div className="bg-secondary p-6 rounded-lg">
-              <h3 className="text-xl font-semibold text-dark mb-4">
-                Payment Summary
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-medium text-dark mb-2">
-                    Payment Method
-                  </h4>
-                  <div className="space-y-2">
-                    <div className="bg-light p-3 rounded-lg border border-gray-200">
-                      <p className="font-medium text-dark">M-Pesa</p>
-                      <p className="text-dark">
-                        Transaction: {orderData.Mpesatransactioncode}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-light p-4 rounded-lg border border-gray-200">
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-dark">Subtotal:</span>
-                      <span className="text-dark">
-                        Kes {orderData.total.toFixed(0)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-dark">Shipping:</span>
-                      <span className="text-dark">Kes 0.00</span>
-                    </div>
-                    <div className="pt-3 mt-3 border-t border-gray-200">
-                      <div className="flex justify-between">
-                        <span className="font-bold text-lg text-dark">Total:</span>
-                        <span className="font-bold text-lg text-primary">
-                          Kes {orderData.total.toFixed(0)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div>
+                <p className="text-gray-500">Quantity Available</p>
+                <p className="text-gray-700">{product.quantity}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Created At</p>
+                <p className="text-gray-700">{new Date(product.createdAt).toLocaleDateString()}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Last Updated</p>
+                <p className="text-gray-700">{new Date(product.updatedAt).toLocaleDateString()}</p>
               </div>
             </div>
           </div>
@@ -283,4 +190,4 @@ const ViewOrder = ({ id }: ViewProps) => {
   );
 };
 
-export default ViewOrder;
+export default ViewProduct;
