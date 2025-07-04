@@ -5,7 +5,6 @@ import Tables from "../components/Tables";
 import { MdShoppingCart, MdError, MdRefresh } from "react-icons/md";
 import OrderModal from "../components/Modal/OrderModal";
 
-
 type OrderItem = {
   id: string;
   name: string;
@@ -45,7 +44,7 @@ const Page = () => {
     setError(null);
     try {
       const response = await axios.get<ApiResponse>("/api/orders");
-      
+
       if (response.data.success) {
         setOrders(response.data.data);
       } else {
@@ -135,7 +134,7 @@ const Page = () => {
         header: "Actions",
         accessor: "_id" as keyof Order,
         className: "",
-      }
+      },
     ],
     []
   );
@@ -149,14 +148,16 @@ const Page = () => {
             #{order._id.slice(-6).toUpperCase()}
           </span>
         </td>
-        
+
         {/* Customer Info - always visible */}
         <td className="px-4 py-3">
           <div className="flex flex-col">
             <span className="font-medium text-gray-800">
               {order.customerName}
             </span>
-            <span className="text-sm text-gray-500">{order.customerEmail}</span>
+            <span className="text-sm md:text-base text-[0.5rem] md:text-inherit text-gray-500">
+              {order.customerEmail}
+            </span>
           </div>
         </td>
 
@@ -167,13 +168,13 @@ const Page = () => {
 
         {/* Total - always visible */}
         <td className="px-4 py-3 text-right">
-          <span className="font-medium">Kes {order.total.toLocaleString()}</span>
+          <span className="font-medium">
+            Kes {order.total.toLocaleString()}
+          </span>
         </td>
 
         {/* Status - always visible */}
-        <td className="px-4 py-3">
-          {getStatusBadge(order.status)}
-        </td>
+        <td className="px-4 py-3">{getStatusBadge(order.status)}</td>
 
         {/* Date - hidden on mobile */}
         <td className="px-4 py-3 hidden lg:table-cell">
@@ -186,28 +187,24 @@ const Page = () => {
         <td className="px-4 py-3">
           <div className="flex items-center gap-2">
             <OrderModal type="view" order={order} />
-            
+
             {order.status === "pending" && (
               <>
-                <OrderModal 
-                  type="confirm" 
-                  order={order} 
-                  onSuccess={fetchOrders} 
+                <OrderModal
+                  type="confirm"
+                  order={order}
+                  onSuccess={fetchOrders}
                 />
-                <OrderModal 
-                  type="cancel" 
-                  order={order} 
-                  onSuccess={fetchOrders} 
+                <OrderModal
+                  type="cancel"
+                  order={order}
+                  onSuccess={fetchOrders}
                 />
               </>
             )}
 
             {order.status === "confirmed" && (
-              <OrderModal 
-                type="ship" 
-                order={order} 
-                onSuccess={fetchOrders} 
-              />
+              <OrderModal type="ship" order={order} onSuccess={fetchOrders} />
             )}
           </div>
         </td>
@@ -258,9 +255,7 @@ const Page = () => {
           <h3 className="mt-4 text-lg font-medium text-gray-900">
             No orders found
           </h3>
-          <p className="mt-2 text-gray-500">
-            No orders have been placed yet.
-          </p>
+          <p className="mt-2 text-gray-500">No orders have been placed yet.</p>
           <button
             onClick={fetchOrders}
             className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none"

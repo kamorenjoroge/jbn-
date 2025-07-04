@@ -12,8 +12,8 @@ import {
 
 const navigationItems = [
   { name: 'Dashboard', href: '/', icon: MdDashboard },
-  { name: 'Orders', href: '/orders', icon: MdShoppingCart },
   { name: 'Products', href: '/products', icon: MdInventory },
+  { name: 'Orders', href: '/orders', icon: MdShoppingCart },
   { name: 'Users', href: '/users', icon: MdPeople },
   { name: 'Settings', href: '/settings', icon: MdSettings },
 ];
