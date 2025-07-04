@@ -3,11 +3,11 @@ import axios from "axios";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import Tables from "../components/Tables";
 import { MdShoppingCart, MdError, MdRefresh } from "react-icons/md";
+import OrderModal from "../components/Modal/OrderModal";
 
 
 type OrderItem = {
   id: string;
-  _id: string;
   name: string;
   price: number;
   quantity: number;
@@ -19,7 +19,7 @@ type Order = {
   customerName: string;
   customerEmail: string;
   phone: string;
-  status: "pending" | "processing" | "completed" | "cancelled";
+  status: "pending" | "confirmed" | "shipped" | "cancelled";
   shippingAddress: string;
   Mpesatransactioncode: string;
   items: OrderItem[];
@@ -72,16 +72,16 @@ const Page = () => {
   const getStatusBadge = (status: string) => {
     const baseClasses = "px-2 py-1 rounded-full text-xs font-medium";
     switch (status) {
-      case "completed":
-        return (
-          <span className={`${baseClasses} bg-green-100 text-green-800`}>
-            Completed
-          </span>
-        );
-      case "processing":
+      case "shipped":
         return (
           <span className={`${baseClasses} bg-blue-100 text-blue-800`}>
-            Processing
+            Shipped
+          </span>
+        );
+      case "confirmed":
+        return (
+          <span className={`${baseClasses} bg-green-100 text-green-800`}>
+            Confirmed
           </span>
         );
       case "cancelled":
@@ -112,9 +112,14 @@ const Page = () => {
         className: "min-w-[150px]",
       },
       {
+        header: "Items",
+        accessor: "items" as keyof Order,
+        className: "hidden sm:table-cell text-center min-w-[80px]",
+      },
+      {
         header: "Total",
         accessor: "total" as keyof Order,
-        className: "hidden md:table-cell",
+        className: "text-right min-w-[100px]",
       },
       {
         header: "Status",
@@ -124,7 +129,7 @@ const Page = () => {
       {
         header: "Date",
         accessor: "createdAt" as keyof Order,
-        className: "hidden md:table-cell",
+        className: "hidden lg:table-cell min-w-[120px]",
       },
       {
         header: "Actions",
@@ -139,40 +144,73 @@ const Page = () => {
     return (
       <tr key={order._id} className="hover:bg-gray-50">
         {/* Order ID - hidden on mobile */}
-        <td className="px-1 py-2 hidden md:table-cell">
+        <td className="px-4 py-3 hidden md:table-cell">
           <span className="font-medium text-gray-900">
             #{order._id.slice(-6).toUpperCase()}
           </span>
         </td>
         
-        {/* Customer Name - always visible */}
-       <td className="px-1 py-2">
-  <div className="font-medium text-gray-900">{order.customerName}</div>
-  <div className="text-sm text-gray-500">{order.customerEmail}</div>
-  
-</td>
+        {/* Customer Info - always visible */}
+        <td className="px-4 py-3">
+          <div className="flex flex-col">
+            <span className="font-medium text-gray-800">
+              {order.customerName}
+            </span>
+            <span className="text-sm text-gray-500">{order.customerEmail}</span>
+          </div>
+        </td>
 
+        {/* Items count - hidden on mobile */}
+        <td className="px-4 py-3 text-center hidden sm:table-cell">
+          <span className="font-medium">{order.items.length}</span>
+        </td>
 
-        {/* Total - hidden on mobile */}
-        <td className="px-1 py-2 hidden md:table-cell">
+        {/* Total - always visible */}
+        <td className="px-4 py-3 text-right">
           <span className="font-medium">Kes {order.total.toLocaleString()}</span>
         </td>
 
         {/* Status - always visible */}
-        <td className="px-1 py-2">
+        <td className="px-4 py-3">
           {getStatusBadge(order.status)}
         </td>
 
         {/* Date - hidden on mobile */}
-        <td className="px-1 py-2 hidden md:table-cell">
+        <td className="px-4 py-3 hidden lg:table-cell">
           <div className="text-sm text-gray-500">
             {new Date(order.createdAt).toLocaleDateString()}
           </div>
         </td>
 
         {/* Actions - always visible */}
-        
-       
+        <td className="px-4 py-3">
+          <div className="flex items-center gap-2">
+            <OrderModal type="view" order={order} />
+            
+            {order.status === "pending" && (
+              <>
+                <OrderModal 
+                  type="confirm" 
+                  order={order} 
+                  onSuccess={fetchOrders} 
+                />
+                <OrderModal 
+                  type="cancel" 
+                  order={order} 
+                  onSuccess={fetchOrders} 
+                />
+              </>
+            )}
+
+            {order.status === "confirmed" && (
+              <OrderModal 
+                type="ship" 
+                order={order} 
+                onSuccess={fetchOrders} 
+              />
+            )}
+          </div>
+        </td>
       </tr>
     );
   }, []);
@@ -208,7 +246,7 @@ const Page = () => {
   return (
     <div className="p-4">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Order History</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Order Management</h1>
         <div className="mt-2 md:mt-0 text-sm text-gray-500">
           Showing {orders.length} order{orders.length !== 1 ? "s" : ""}
         </div>
@@ -221,7 +259,7 @@ const Page = () => {
             No orders found
           </h3>
           <p className="mt-2 text-gray-500">
-            You haven&lsquo;t placed any orders yet.
+            No orders have been placed yet.
           </p>
           <button
             onClick={fetchOrders}
