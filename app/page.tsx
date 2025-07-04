@@ -81,9 +81,6 @@ const Page = () => {
           </p>
         </div>
         <div className="flex space-x-3">
-          <button className="px-4 py-2 bg-secondary text-primary rounded-lg hover:bg-opacity-80 transition-colors">
-            Export Report
-          </button>
           <ProductModal type="create" />
         </div>
       </div>
